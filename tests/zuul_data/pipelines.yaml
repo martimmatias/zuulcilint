@@ -123,3 +123,22 @@
       github:
         status:
           - "zuul:check:success"
+
+- pipeline:
+    name: test-github-check-queued
+    manager: independent
+    trigger:
+      github:
+        - event: pull_request
+    enqueue:
+      github:
+        check: queued
+    start:
+      github:
+        check: in_progress
+    success:
+      github:
+        check: success
+    failure:
+      github:
+        check: failure

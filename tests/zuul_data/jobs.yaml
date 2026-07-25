@@ -169,3 +169,11 @@
     name: test-include-vars-single
     include-vars:
       name: foobar.yaml
+
+- job:
+    name: test-job-type-initializer
+    type: initializer
+
+- job:
+    name: test-job-type-regular
+    type: regular

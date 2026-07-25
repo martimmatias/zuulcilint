@@ -1,8 +1,8 @@
 {
-    "title": "(WIP) JSON/YAML schema for Zuul CI 13.0.0 configuration files",
+    "title": "(WIP) JSON/YAML schema for Zuul CI 13.1.0 configuration files",
     "description": "Used for quick validation of Zuul CI job configuration files.",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "type": "array",
     "additionalProperties": false,
     "items": {
@@ -624,6 +624,13 @@
                     "deprecated": true,
                     "title": "job.success-url",
                     "description": "When a job succeeds, this URL is reported along with the result. If this value is not supplied, Zuul uses the content of the job return value zuul.log_url. This is recommended as it allows the code which stores the URL to the job artifacts to report exactly where they were stored. To override this value, or if it is not set, supply an absolute URL in this field. If a relative URL is supplied in this field, and zuul.log_url is set, then the two will be combined to produce the URL used for the report. This can be used to specify that certain jobs should “deep link” into the stored job artifacts."
+                },
+                "type": {
+                    "type": "string",
+                    "default": "regular",
+                    "enum": ["regular", "initializer"],
+                    "title": "job.type",
+                    "description": "The type of job.\n\n- regular\n\nThis is a normal Zuul job and is appropriate for the vast majority of circumstances.\n\n- initializer\n\nAn initializer job is always automatically inserted at the start of the job graph, so that it runs before any other jobs and acts as a dependency for all other jobs in the graph. It behaves exactly as if all other jobs run for a queue item were declared with a dependency on this job using job.dependencies."
                 },
                 "tags": {
                     "type": "array",
@@ -1753,9 +1760,9 @@
                 },
                 "check": {
                     "type": "string",
-                    "enum": ["cancelled", "failure", "in_progress", "neutral", "skipped", "success"],
+                    "enum": ["queued", "cancelled", "failure", "in_progress", "neutral", "skipped", "success"],
                     "title": "pipeline.&lt;reporter&gt;.&lt;github source&gt;.check",
-                    "description": "Report status via the Github checks API. Set to one of:\r\n\n- cancelled\r\n\n- failure\r\n\n- in_progress\r\n\n- neutral\r\n\n- skipped\r\n\n- success\r\n\n\r\n\nThis is usually mutually exclusive with a value set in pipeline.<reporter>.<github source>.status, since this reports similar results via a different API."
+                    "description": "Report status via the Github checks API. Set to one of:\r\n\n- queued\r\n\n- cancelled\r\n\n- failure\r\n\n- in_progress\r\n\n- neutral\r\n\n- skipped\r\n\n- success\r\n\n\r\n\nThe queued value indicates that a pull request has been enqueued into a pipeline.\r\n\n\r\n\nThis is usually mutually exclusive with a value set in pipeline.<reporter>.<github source>.status, since this reports similar results via a different API."
                 },
                 "comment": {
                     "type": "boolean",
