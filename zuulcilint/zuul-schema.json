@@ -1254,16 +1254,48 @@
                 "data": {
                     "type": "object",
                     "title": "secret.data",
-                    "description": "A dictionary which will be added to the Ansible variables available to the job. The values can be any of the normal YAML data types (strings, integers, dictionaries or lists) or encrypted strings.",
+                    "description": "Mutually exclusive with oidc, either data or oidc must be supplied. A dictionary which will be added to the Ansible variables available to the job. The values can be any of the normal YAML data types (strings, integers, dictionaries or lists) or encrypted strings.",
                     "examples": ["https://zuul-ci.org/docs/zuul/11.2.0/project-config.html#encryption"],
                     "patternProperties": {
                         "^(?!(name|data)$)": {
                             "title": "secret.data.&lt;value&gt;"
                         }
                     }
+                },
+                "oidc": {
+                    "type": ["object", "null"],
+                    "additionalProperties": false,
+                    "title": "secret.oidc",
+                    "description": "Mutually exclusive with data, either data or oidc must be supplied. If this value is set, then an OIDC ID token in string form will be generated dynamically before running the playbook, and will be added to the Ansible variables available to the job. It can be used to authenticate to external services that trust Zuul. Since all attributes are optional, to request a token secret without supplying any options, leave this value empty.",
+                    "properties": {
+                        "ttl": {
+                            "type": "integer",
+                            "title": "secret.oidc.ttl",
+                            "description": "TTL (Time-To-Live) of the ID token in seconds, used to calculate the exp claim. It should be longer than the duration between the playbook start and the task execution that uses the secret, otherwise the token may be expired. It must not be greater than the tenant's max-oidc-ttl and if not specified, the default value is the tenant's default-oidc-ttl."
+                        },
+                        "iss": {
+                            "type": "string",
+                            "title": "secret.oidc.iss",
+                            "description": "Custom iss claim, it must be one of the allowed issuers defined in the tenant's allowed-oidc-issuers."
+                        },
+                        "algorithm": {
+                            "type": "string",
+                            "title": "secret.oidc.algorithm",
+                            "description": "Specify the signing algorithm of the ID token. It must be one of the supported signing algorithms and if not specified, the default signing algorithm is used."
+                        },
+                        "claims": {
+                            "type": "object",
+                            "title": "secret.oidc.claims",
+                            "description": "A dictionary of custom claims to be added to the ID token. For example, the aud claim can be specified here. The custom claims are not able to overwrite the Zuul default claims."
+                        }
+                    }
                 }
             },
-            "required": ["name", "data"]
+            "required": ["name"],
+            "oneOf": [
+                { "required": ["data"] },
+                { "required": ["oidc"] }
+            ]
         },
         "semaphore": {
             "type": "object",

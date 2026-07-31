@@ -1,9 +1,9 @@
 ---
-- jobs:  # must fail as correct is 'job'
+- jobs: # must fail as correct is 'job'
     name: foo
 - job:
     roles:
-      - install-docker  # should be "zuul: install-docker"
+      - install-docker # should be "zuul: install-docker"
 
 # Duplicate name for semaphore in both job and run
 - job:
@@ -26,3 +26,10 @@
     run:
       - name: playbooks/test-run-semaphores.yaml
         semaphores: test-run-semaphore-2
+
+# data and oidc are mutually exclusive on a secret
+- secret:
+    name: my-oidc-secret-with-data
+    data:
+      foo: bar
+    oidc:
