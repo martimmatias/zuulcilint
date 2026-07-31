@@ -177,3 +177,18 @@
 - job:
     name: test-job-type-regular
     type: regular
+
+- job:
+    name: test-job-type-reporter
+    type: reporter
+
+- job:
+    name: test-include-exclude-projects
+    include-projects:
+      - foo/bar
+      - type: change
+      - type: item
+      - type: name
+        name: bar/foo
+    exclude-projects:
+      - foo/baz

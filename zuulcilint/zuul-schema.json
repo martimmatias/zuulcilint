@@ -1,8 +1,8 @@
 {
-    "title": "(WIP) JSON/YAML schema for Zuul CI 13.1.0 configuration files",
+    "title": "(WIP) JSON/YAML schema for Zuul CI 14.0.0 configuration files",
     "description": "Used for quick validation of Zuul CI job configuration files.",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "type": "array",
     "additionalProperties": false,
     "items": {
@@ -207,6 +207,26 @@
                         }
                     ]
                 },
+                "exclude-projects": {
+                    "type": "array",
+                    "title": "job.exclude-projects",
+                    "description": "A list of projects that should be excluded when preparing the workspace for this job. See job.include-projects for a general description of the feature. This filter is applied after job.include-projects, so it may further refine a list of projects. The default value of null indicates no filtering is to be performed.\n\nThe items in the list may either be a string, in which case they are interpreted as the name of a project, or a dictionary with a type key (one of name, change, or item) and, for type name, a name key with the project name to match.\n\nSupports override control. The default is `!inherit:` values are merged without duplication.",
+                    "default": null,
+                    "items": {
+                        "type": ["string", "object"],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": ["name", "change", "item"],
+                                "description": "The type of entry. name matches a project by name (requires the name key), change matches the project of the current change under test, and item matches any project in the current queue item."
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "Only used with the name type, this string is the name of the project to match."
+                            }
+                        }
+                    }
+                },
                 "extra-vars": {
                     "type": "object",
                     "additionalProperties": true,
@@ -274,6 +294,26 @@
                     "additionalProperties": true,
                     "title": "job.host-vars",
                     "description": "A dictionary of host variables to supply to Ansible. The keys of this dictionary are node names as defined in a Nodeset, and the values are dictionaries of variables, just as in job.vars.\n\nSupports override control. The default is `!inherit:` values are deep-merged."
+                },
+                "include-projects": {
+                    "type": "array",
+                    "title": "job.include-projects",
+                    "description": "A list of projects that should be included when preparing the workspace for this job. Any projects that are required for playbooks, roles, include-vars, or required-projects will be present and prepared regardless. This may only be used to filter projects that would otherwise already be present in the workspace for other reasons. That includes projects for changes related to any items ahead in the queue, dependencies of those changes, and also the changes under test for the current queue item, and any required projects for the job.\n\nNote that include-projects alone is not sufficient to cause a project to be prepared in the workspace. It must be selected due to one of the preceding reasons. See job.required-projects to force a project to appear in the workspace.\n\nThe default value of null indicates no filtering is to be performed.\n\nThe items in the list may either be a string, in which case they are interpreted as the name of a project, or a dictionary with a type key (one of name, change, or item) and, for type name, a name key with the project name to match.\n\nSupports override control. The default is `!inherit:` values are merged without duplication.",
+                    "default": null,
+                    "items": {
+                        "type": ["string", "object"],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": ["name", "change", "item"],
+                                "description": "The type of entry. name matches a project by name (requires the name key), change matches the project of the current change under test, and item matches any project in the current queue item."
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "Only used with the name type, this string is the name of the project to match."
+                            }
+                        }
+                    }
                 },
                 "include-vars": {
                     "title": "job.include-vars",
@@ -628,9 +668,9 @@
                 "type": {
                     "type": "string",
                     "default": "regular",
-                    "enum": ["regular", "initializer"],
+                    "enum": ["regular", "initializer", "reporter"],
                     "title": "job.type",
-                    "description": "The type of job.\n\n- regular\n\nThis is a normal Zuul job and is appropriate for the vast majority of circumstances.\n\n- initializer\n\nAn initializer job is always automatically inserted at the start of the job graph, so that it runs before any other jobs and acts as a dependency for all other jobs in the graph. It behaves exactly as if all other jobs run for a queue item were declared with a dependency on this job using job.dependencies."
+                    "description": "The type of job.\n\n- regular\n\nThis is a normal Zuul job and is appropriate for the vast majority of circumstances.\n\n- initializer\n\nAn initializer job is always automatically inserted at the start of the job graph, so that it runs before any other jobs and acts as a dependency for all other jobs in the graph. It behaves exactly as if all other jobs run for a queue item were declared with a dependency on this job using job.dependencies.\n\n- reporter\n\nA reporter job is run after all other jobs in the buildset have completed, and after all pipeline reporters have reported. It only runs if the buildset is successful and no errors were encountered by the pipeline reporters. Because of this, its results may not be used to influence the result of a buildset, or whether a change is merged. A reporter job may be used to synchronously update external references to git repositories that are gated by Zuul."
                 },
                 "tags": {
                     "type": "array",
